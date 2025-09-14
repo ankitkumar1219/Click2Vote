@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cast2Vote - Admin Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f9fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 35px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 360px;
+            text-align: center;
+        }
+        .card h2 {
+            margin-bottom: 20px;
+            color: #222;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        input:focus {
+            border-color: #28a745;
+            outline: none;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 6px;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn-login {
+            background: #28a745;
+            color: white;
+        }
+        .btn-login:hover {
+            background: #218838;
+        }
+        .btn-back {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-back:hover {
+            background: #565e64;
+        }
+        p {
+            color: red;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        small {
+            display: block;
+            margin-top: 15px;
+            color: #666;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Cast2Vote Admin Login</h2>
+        <form id="adminLoginForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit" class="btn btn-login">Login</button>
+        </form>
+        <button class="btn btn-back" onclick="goBackHome()">Back to Home</button>
+        <p id="msg"></p>
+        <small>&copy; 2025 Cast2Vote. Secure Online Voting</small>
+    </div>
+
+    <script>
+        const form = document.getElementById('adminLoginForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            };
+
+            const res = await fetch("http://localhost:8080/admin/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            if(res.ok){
+                const responseData = await res.json();
+                if(Object.keys(responseData).length !== 0){
+                    alert("✅ Login successful!");
+                    window.location.href = "admin-dashboard.html";
+                } else {
+                    document.getElementById('msg').innerText = "❌ Login failed.";
+                }
+            } else {
+                document.getElementById('msg').innerText = "❌ Login failed.";
+            }
+        });
+
+        function goBackHome() {
+            window.location.href = "index.html"; // replace with your homepage
+        }
+    </script>
+</body>
+</html>

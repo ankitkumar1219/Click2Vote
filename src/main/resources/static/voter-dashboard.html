@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Voter Dashboard - Cast2Vote</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: #eef2f7;
+      color: #333;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(90deg, #007bff, #0056b3);
+      color: white;
+      padding: 18px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    header h2 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+    .logout-btn {
+      background: #ff4b5c;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 25px;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .logout-btn:hover {
+      background: #e63946;
+      transform: scale(1.05);
+    }
+
+    /* Main Content */
+    main {
+      padding: 40px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Table Styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    thead {
+      background: #007bff;
+      color: white;
+    }
+    th, td {
+      padding: 14px 12px;
+      text-align: left;
+      font-size: 15px;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    tr:hover {
+      background: #eef5ff;
+    }
+
+    /* Buttons */
+    .vote-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #28a745, #218838);
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    .vote-btn:hover {
+      background: linear-gradient(90deg, #218838, #1e7e34);
+      transform: translateY(-2px);
+    }
+
+    /* Message */
+    #msg {
+      margin-top: 18px;
+      font-weight: bold;
+      font-size: 15px;
+      color: #28a745;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>Welcome, Voter!</h2>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </header>
+
+  <main>
+    <div class="card">
+      <h3 style="margin-bottom: 20px; color:#0056b3;">Available Candidates</h3>
+      <table id="candidatesTable">
+        <thead>
+          <tr>
+            <th>Candidate Name</th>
+            <th>Party</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p id="msg"></p>
+    </div>
+  </main>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const voterId = urlParams.get('voterId');
+
+    async function loadCandidates() {
+      const res = await fetch('http://localhost:8080/voters/candidates');
+      const candidates = await res.json();
+
+      const tbody = document.querySelector('#candidatesTable tbody');
+      tbody.innerHTML = '';
+
+      candidates.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${c.name}</td>
+          <td>${c.party}</td>
+          <td><button class="vote-btn" onclick="vote(${voterId}, ${c.id})">Vote</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function vote(voterId, candidateId) {
+      const res = await fetch(
+        `http://localhost:8080/voters/vote?voterId=${voterId}&candidateId=${candidateId}`,
+        { method: 'POST' }
+      );
+      const msg = await res.text();
+      document.getElementById('msg').innerText = msg;
+      loadCandidates();
+    }
+
+    function logout() {
+      alert("You have been logged out.");
+      window.location.href = "voter-login.html"; // redirect to login
+    }
+
+    loadCandidates();
+  </script>
+</body>
+</html>
